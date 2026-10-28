@@ -65,3 +65,11 @@ libstandaloneengine.a
 tests/string
 tests/config
 tests/ech-log/
+
+# Apple packaging outputs and SwiftPM state
+/out/
+/dist/
+/.build/
+/.swiftpm/
+/Package.resolved
+.DS_Store
