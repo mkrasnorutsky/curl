@@ -1,0 +1,21 @@
+name: Apple libcurl XCFramework
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build device and both Simulator architectures
+        run: python3 apple/scripts/build_xcframework.py --jobs 3
+      - name: Link all targets and run native offline API/file tests
+        run: python3 apple/scripts/validate_xcframework.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Curl-iOS-XCFramework
+          path: |
+            dist/Curl.xcframework
+            dist/build-manifest.json

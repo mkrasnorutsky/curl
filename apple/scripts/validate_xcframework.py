@@ -8,7 +8,7 @@ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--https',action='
 artifact=ROOT/'dist/Curl.xcframework';info=plistlib.loads((artifact/'Info.plist').read_bytes());assert len(info['AvailableLibraries'])==2
 cares=fetch()['CAres']
 def link(sdk,triple,headers,archive,cares_library,destination):
-    subprocess.run(['xcrun','clang','-target',triple,'-isysroot',sdk,'-DCURL_STATICLIB','-I'+str(headers),str(ROOT/'apple/scripts/curl_smoke.c'),str(archive),str(cares_library),'-lz','-lresolv',*[item for framework in SYSTEM_FRAMEWORKS for item in ['-framework',framework]],'-o',str(destination)],check=True)
+    subprocess.run(['xcrun','clang',*(['-target',triple] if triple else []),'-isysroot',sdk,'-DCURL_STATICLIB','-I'+str(headers),str(ROOT/'apple/scripts/curl_smoke.c'),str(archive),str(cares_library),'-lz','-lresolv',*[item for framework in SYSTEM_FRAMEWORKS for item in ['-framework',framework]],'-o',str(destination)],check=True)
 for entry in info['AvailableLibraries']:
     sim=entry.get('SupportedPlatformVariant')=='simulator';assert entry['SupportedPlatform']=='ios'
     assert set(entry['SupportedArchitectures'])==({'arm64','x86_64'} if sim else {'arm64'})
@@ -29,7 +29,7 @@ subprocess.run(['cmake','-S',str(source),'-B',str(cb),'-DCMAKE_BUILD_TYPE=Releas
 subprocess.run(['cmake','--build',str(cb),'--parallel','6'],check=True);subprocess.run(['cmake','--install',str(cb)],check=True)
 build=ROOT/'out/native-validation';prefix=build/'install';configure(build,prefix,cp/'include',cp/'lib/libcares.a')
 sdk=subprocess.check_output(['xcrun','--sdk','macosx','--show-sdk-path'],text=True).strip()
-arch=subprocess.check_output(['uname','-m'],text=True).strip();link(sdk,arch+'-apple-macosx',prefix/'include',prefix/'lib/libcurl.a',cp/'lib/libcares.a',build/'curl_smoke')
+link(sdk,None,prefix/'include',prefix/'lib/libcurl.a',cp/'lib/libcares.a',build/'curl_smoke')
 fixture=build/'fixture.txt';fixture.write_text('OneClickPilot curl file fixture\n')
 subprocess.run([str(build/'curl_smoke'),fixture.as_uri()],check=True)
 if a.https:subprocess.run([str(build/'curl_smoke'),'https://api.github.com/repos/mkrasnorutsky/curl'],check=True)

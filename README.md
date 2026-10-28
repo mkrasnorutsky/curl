@@ -1,3 +1,5 @@
+**Apple distribution:** see [iOS XCFramework / SPM instructions](apple/README.md). Supports arm64 device and arm64/x86_64 Simulator; product **Curl**.
+
 <!--
 Copyright (C) Daniel Stenberg, <daniel@haxx.se>, et al.
 
