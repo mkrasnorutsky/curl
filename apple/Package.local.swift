@@ -2,7 +2,7 @@
 import PackageDescription
 let package = Package(name: "Curl", platforms: [.iOS("18.0")],
     products: [.library(name: "Curl", targets: ["Curl"])],
-    dependencies: [.package(url: "https://github.com/mkrasnorutsky/c-ares.git", exact: "0.1.0")],
+    dependencies: [.package(url: "https://github.com/mkrasnorutsky/c-ares.git", exact: "0.1.1")],
     targets: [
         .binaryTarget(name: "CCurl", path: "dist/Curl.xcframework"),
         .target(name: "Curl", dependencies: ["CCurl", .product(name: "CAres", package: "c-ares")], path: "apple/SPM", publicHeadersPath: "include",

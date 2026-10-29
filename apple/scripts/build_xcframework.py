@@ -3,6 +3,8 @@
 from pathlib import Path
 import argparse,json,shutil,subprocess
 from dependencies import ROOT,fetch,select
+import os
+WORK=Path(os.environ.get("APPLE_BUILD_ROOT", str(ROOT))).expanduser().resolve()
 OPTIONS=['-DBUILD_SHARED_LIBS=OFF','-DBUILD_STATIC_LIBS=ON','-DBUILD_CURL_EXE=OFF','-DBUILD_EXAMPLES=OFF','-DBUILD_TESTING=OFF','-DBUILD_LIBCURL_DOCS=OFF','-DBUILD_MISC_DOCS=OFF','-DCURL_USE_SECTRANSP=ON','-DCURL_DEFAULT_SSL_BACKEND=secure-transport','-DCURL_USE_OPENSSL=OFF','-DCURL_USE_PKGCONFIG=OFF','-DENABLE_ARES=ON','-DCURL_DISABLE_LDAP=ON','-DCURL_DISABLE_LDAPS=ON','-DCURL_ZLIB=ON','-DCURL_BROTLI=OFF','-DCURL_ZSTD=OFF','-DUSE_NGHTTP2=OFF','-DUSE_LIBIDN2=OFF','-DCURL_USE_LIBPSL=OFF','-DCURL_USE_LIBSSH=OFF','-DCURL_USE_LIBSSH2=OFF','-DCURL_USE_GSSAPI=OFF','-DCURL_USE_GSASL=OFF']
 SYSTEM_FRAMEWORKS=['Security','CoreFoundation','CoreServices']
 def run(*args):
@@ -18,15 +20,16 @@ def main():
     dep=fetch()['CAres'];built={}
     configurations=[('ios-arm64','iphoneos','arm64'),('simulator-arm64','iphonesimulator','arm64'),('simulator-x86_64','iphonesimulator','x86_64')]
     for label,sdk,arch in configurations:
-        folder,entry=select(dep,sdk=='iphonesimulator');build=ROOT/'out/apple'/label;prefix=build/'install'
+        folder,entry=select(dep,sdk=='iphonesimulator');build=WORK/'out/apple'/label;prefix=build/'install'
         configure(build,prefix,folder/entry['HeadersPath'],folder/entry['LibraryPath'],sdk,arch,a.jobs);built[label]=prefix
-    out=ROOT/'dist';out.mkdir(exist_ok=True);staging=out/'staging'
+    out=WORK/'dist';out.mkdir(exist_ok=True);staging=out/'staging'
     if staging.exists():shutil.rmtree(staging)
     staging.mkdir();universal=staging/'libcurl.a'
     run('lipo','-create',built['simulator-arm64']/'lib/libcurl.a',built['simulator-x86_64']/'lib/libcurl.a','-output',universal)
     headers=staging/'Headers';shutil.copytree(built['ios-arm64']/'include',headers)
     (headers/'CCurl.h').write_text('#pragma once\n#ifndef CURL_STATICLIB\n#define CURL_STATICLIB\n#endif\n#include <curl/curl.h>\n')
-    (headers/'module.modulemap').write_text('module CCurl {\n header "CCurl.h"\n export *\n}\n')
+    (headers/'CCurl').mkdir(exist_ok=True)
+    (headers/'CCurl/module.modulemap').write_text('module CCurl {\n header "../CCurl.h"\n export *\n}\n')
     artifact=out/'Curl.xcframework'
     if artifact.exists():shutil.rmtree(artifact)
     run('xcodebuild','-create-xcframework','-library',built['ios-arm64']/'lib/libcurl.a','-headers',headers,'-library',universal,'-headers',headers,'-output',artifact)

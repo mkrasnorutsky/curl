@@ -1,9 +1,9 @@
 {
   "CAres": {
-    "url": "https://github.com/mkrasnorutsky/c-ares/releases/download/0.1.0/CAres.xcframework.zip",
-    "sha256": "6a02c72d3b0756a8ce376823dfabcd2798dc5f00ab9c2fc54e6be3991e548f45",
+    "url": "https://github.com/mkrasnorutsky/c-ares/releases/download/0.1.1/CAres.xcframework.zip",
+    "sha256": "8773c2981fc8e1b84e40f64d7e7f6fe57a165bc31216c9af427e93c2e7146958",
     "package": "c-ares",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "source_url": "https://github.com/mkrasnorutsky/c-ares.git",
     "source_revision": "40bd84aa0a8944b3bfa51492b5fd454b847d0b69"
   }
